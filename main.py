@@ -109,7 +109,7 @@ def searchGutenberg(searchTerm):
         cB.title = cellContent.find_all("span", class_="title")[0].text
         #cB.year = int(cellContent.find_all("span", class_="extra")[0].text.split(", ")[-1]) only usable w/ sorting by date
         cB.localId = result.a['href'].split('/')[-1]
-        cB.downloadUrl = getGutenbergMirrorUrl(cB.localId)
+        # cB.downloadUrl = getGutenbergMirrorUrl(cB.localId)
         curBooks.append(cB)
     return curBooks
 
