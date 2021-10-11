@@ -3,13 +3,11 @@
 # a program to retrieve pdfs from online repositories
 # 2021-10-08ymd
 import requests
-import time
-import json
 import urllib
+import sys
 from urllib import parse
 from tqdm import tqdm
 from bs4 import BeautifulSoup
-import sys
 
 
 def urlDownload(url, loc, bar):
