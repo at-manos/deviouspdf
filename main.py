@@ -5,20 +5,36 @@
 import requests
 import urllib
 import sys
+import argparse
 from urllib import parse
 from tqdm import tqdm
 from bs4 import BeautifulSoup
 
 
+parser = argparse.ArgumentParser(
+    description="A tool for retrieving e-books from public repositories such as Libgen and Project Gutenberg")
+parser.add_argument("search",
+                    help="The input of your search. Usually the title and author.", nargs="*")
+
+parser.add_argument("--path",
+                    help="Directory to save to, defaults to your current working directory.", default=".")
+
+parser.add_argument("--nocheck", "-nc",
+                    help="Flag as 'true' if you wish to download the first result. Default='false'",
+                    choices=["true", "false"], default="false")
+args = parser.parse_args()
+search = " ".join(args.search)
+
 def urlDownload(url, loc, bar):
     loc = loc.replace('/', '_') # replacing file-unsafe chars
     if len(sys.argv)>=2:
-        loc = sys.argv[1]+"/"+loc
+        loc = args.path+"/"+loc
     if(bar):
         response = requests.get(url, stream=True)
         blockSize = 1024 # each block
         with open(loc, 'wb') as file:
-            progBar = tqdm(unit="iB",unit_scale=True,  total = int(response.headers['Content-Length']))
+            progBar = tqdm(unit="iB",unit_scale=True,
+                           total = int(response.headers['Content-Length']))
             for data in response.iter_content(chunk_size=blockSize):
                 if data:
                     progBar.update(len(data))
@@ -35,8 +51,9 @@ class book:
     md5, source, authors, extension, title, publisher = "","", "", "", "", ""
     downloadUrl = ""
     def printInfo(self):
-        print("Title: %s/nAuthors: %s/nFiletype: %s/n Year: %s/n Publisher: %s/n" %
-              (self.title, ", ".join(self.authors.split(',')[:3]),
+        authorsInfo =  self.authors.split(',')[:3]
+        print("Title: %s \nAuthor%s: %s \nFiletype: %s \nYear: %s \nPublisher: %s" %
+              (self.title,"s" if len(authorsInfo)>1 else "", ", ".join(authorsInfo),
                self.extension, self.year, self.publisher
                ))
     def download(self):
@@ -152,18 +169,26 @@ def userScan(results):
             print("===================")
             i.printInfo()
             print("===================")
-            ans = input("Download this book? [y/N]") or 'n'
-            if(ans[0].lower() == "y"):
+            inputOpts = "[(y)es/(N)o/(s)kip repository/(q)uit]" if results.index(i) == 0 else "[y/N/s/q]"
+            ans = input("Download this book? "+inputOpts) or 'n'
+            proccedAns = ans[0].lower()
+            if(proccedAns == "q"):
+                exit()
+            elif(proccedAns == "y"):
                 print("Retrieving document...")
                 i.download()
                 exit()
+            elif(proccedAns == "s"):
+                return(0)
+
     else:
         print("No results from this repository.")
         return 0
 
-searchStr = input("Enter your search: ")
+
+searchStr = input("Enter your search: ") if search == "" else search
 result = searchLibgen(searchStr)
 userScan(result)
-print("No results from libgen, trying Gutenberg...")
+print("Now pulling from Project Gutenberg...")
 result = searchGutenberg(searchStr)
 userScan(result)
