@@ -188,7 +188,18 @@ def userScan(results):
 
 searchStr = input("Enter your search: ") if search == "" else search
 result = searchLibgen(searchStr)
-userScan(result)
+if args.nocheck == "true":
+    if len(result)>0:
+        result[0].download()
+        exit()
+else:
+    userScan(result)
+
 print("Now pulling from Project Gutenberg...")
 result = searchGutenberg(searchStr)
-userScan(result)
+if args.nocheck == "true":
+    if len(result)>0:
+        result[0].download()
+        exit()
+else:
+    userScan(result)
