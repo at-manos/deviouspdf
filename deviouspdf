@@ -190,6 +190,7 @@ searchStr = input("Enter your search: ") if search == "" else search
 result = searchLibgen(searchStr)
 if args.nocheck == "true":
     if len(result)>0:
+        result[0].printInfo()
         result[0].download()
         exit()
 else:
@@ -199,6 +200,7 @@ print("Now pulling from Project Gutenberg...")
 result = searchGutenberg(searchStr)
 if args.nocheck == "true":
     if len(result)>0:
+        result[0].printInfo()
         result[0].download()
         exit()
 else:
