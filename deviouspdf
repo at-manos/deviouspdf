@@ -12,7 +12,8 @@ from bs4 import BeautifulSoup
 
 
 parser = argparse.ArgumentParser(
-    description="A tool for retrieving e-books from public repositories such as Libgen and Project Gutenberg")
+    description="A tool for retrieving e-books from public repositories such as Libgen and Project Gutenberg",
+    epilog="Github Repository: https://www.github.com/at-manos/deviouspdf")
 parser.add_argument("search",
                     help="The input of your search. Usually the title and author.", nargs="*")
 
@@ -63,7 +64,7 @@ class book:
         elif(self.source == "gutenberg"):
             self.downloadUrl = getGutenbergMirrorUrl(self.localId)
             fileExtension = chosenFormat.split(".")[0]
-        urlDownload(self.downloadUrl, self.title + "." + fileExtension, True)
+        urlDownload(self.downloadUrl, self.title + " - " + self.authors.split(',')[0] + "." + fileExtension, True)
 
 #libgen
 def searchLibgen(searchTerm):
