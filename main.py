@@ -35,8 +35,8 @@ class book:
     md5, source, authors, extension, title, publisher = "","", "", "", "", ""
     downloadUrl = ""
     def printInfo(self):
-        print("%s| %s by %s |Filetype: %s| Year: %s | Publisher: %s" %
-              (self.localId, self.title, ", ".join(self.authors.split(',')[:3]),
+        print("Title: %s/nAuthors: %s/nFiletype: %s/n Year: %s/n Publisher: %s/n" %
+              (self.title, ", ".join(self.authors.split(',')[:3]),
                self.extension, self.year, self.publisher
                ))
     def download(self):
