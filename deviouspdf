@@ -27,9 +27,6 @@ args = parser.parse_args()
 search = " ".join(args.search)
 
 def urlDownload(url, loc, bar):
-    loc = loc.replace('/', '_') # replacing file-unsafe chars
-    if len(sys.argv)>=2:
-        loc = args.path+"/"+loc
     if(bar):
         response = requests.get(url, stream=True)
         blockSize = 1024 # each block
@@ -62,9 +59,10 @@ class book:
             self.downloadUrl = getLibgenMirrorUrl(self.md5)
             fileExtension = self.downloadUrl.split('.')[-1]
         elif(self.source == "gutenberg"):
-            self.downloadUrl = getGutenbergMirrorUrl(self.localId)
-            fileExtension = chosenFormat.split(".")[0]
-        urlDownload(self.downloadUrl, self.title + " - " + self.authors.split(',')[0] + "." + fileExtension, True)
+            mirrorResponse = getGutenbergMirrorUrl(self.localId)
+            self.downloadUrl = mirrorResponse[0]
+            fileExtension = mirrorResponse[1]
+        urlDownload(self.downloadUrl, args.path+"/"+self.title + " - " + self.authors.split(',')[0] + "." + fileExtension, True)
 
 #libgen
 def searchLibgen(searchTerm):
@@ -160,7 +158,7 @@ def getGutenbergMirrorUrl(bookId):
         print()
         chosenFormat = input("Choose one of the available formats: ")
     downloadUrl = fullMirror+"."+chosenFormat
-    return downloadUrl
+    return downloadUrl, chosenFormat.split(".")[0] # dirty solution for dumb gutenberg formats
 
 
 
