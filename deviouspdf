@@ -62,7 +62,7 @@ class book:
             mirrorResponse = getGutenbergMirrorUrl(self.localId)
             self.downloadUrl = mirrorResponse[0]
             fileExtension = mirrorResponse[1]
-        self.title = self.title.replace("/", "_") # replacing file-unsafe chars
+        self.title = self.title.replace("/", "_").replace(":", ";") # replacing file-unsafe chars
         urlDownload(self.downloadUrl, args.path+"/"+self.title + " - " + self.authors.split(',')[0] + "." + fileExtension, True)
 
 #libgen
