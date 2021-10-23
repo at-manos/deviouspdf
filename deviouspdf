@@ -59,9 +59,11 @@ class book:
             self.downloadUrl = getLibgenMirrorUrl(self.md5)
             fileExtension = self.downloadUrl.split('.')[-1]
         elif(self.source == "gutenberg"):
-            mirrorResponse = getGutenbergMirrorUrl(self.localId)
-            self.downloadUrl = mirrorResponse[0]
-            fileExtension = mirrorResponse[1]
+            bookFormats = getGutenbergFormats(self.localId)
+            chosenFormat = chooseFormat(bookFormats) # maybe bad design to do this inside class function
+            mirrorResponse = getGutenbergMirrorUrl(self.localId, chosenFormat)
+            self.downloadUrl = mirrorResponse
+            fileExtension = chosenFormat.split(".")[0]
         self.title = self.title.replace("/", "_").replace(":", ";") # replacing file-unsafe chars
         urlDownload(self.downloadUrl, args.path+"/"+self.title + " - " + self.authors.split(',')[0] + "." + fileExtension, True)
 
@@ -130,38 +132,46 @@ def searchGutenberg(searchTerm):
         curBooks.append(cB)
     return curBooks
 
-def getGutenbergMirrorUrl(bookId):
+def getGutenbergFormats(bookId):
     currentMirrorBase = "https://www.gutenberg.org/ebooks/"
     fullMirror = currentMirrorBase + bookId
     response = requests.get(fullMirror)
     soup = BeautifulSoup(response.content, 'html.parser')
     formats = soup.find_all("td", {"property" : "dcterms:format"})
     formatList = []
-    print("List of available formats: ", end="")
     for form in formats:
         ext = form.a['href'].split("/")[-1]
         ext = ext.split("?")[0]
         ext = ".".join(ext.split(".")[1:])
-        print(ext+"|", end="")
         formatList.append(ext)
-        print()
-    chosenFormat = input("Choose one of the available formats: ")
-    if chosenFormat not in formatList:
-        if("epub.images" in formatList):
-            chosenFormat = "epub.images"
-        elif("epub.noimages" in formatList):
-            chosenFormat = "epub.noimages"
-        print("Defaulting to "+chosenFormat)
-    while chosenFormat not in formatList:
-        print("List of available formats: ", end="")
-        for form in formatList:
-            print(form+"|", end="")
-        print()
-        chosenFormat = input("Choose one of the available formats: ")
-    downloadUrl = fullMirror+"."+chosenFormat
-    return downloadUrl, chosenFormat.split(".")[0] # dirty solution for dumb gutenberg formats
+    return formatList
 
 
+def getGutenbergMirrorUrl(bookId, fileFormat):
+    currentMirrorBase = "https://www.gutenberg.org/ebooks/"
+    fullMirror = currentMirrorBase + bookId
+    formats = getGutenbergFormats(bookId)
+    downloadUrl = fullMirror+"."+fileFormat
+    return downloadUrl
+
+
+
+def chooseFormat(formats):
+    chosenFormat = 0
+    while chosenFormat not in formats:
+        if chosenFormat == "":
+            if("epub.images" in formats):
+                chosenFormat = "epub.images"
+            elif("epub.noimages" in formats):
+                chosenFormat = "epub.noimages"
+            print("Defaulting to "+chosenFormat)
+        else:
+            print("List of available formats: ", end="")
+            for form in formats:
+                print(form+"|", end="")
+            print()
+            chosenFormat = input("Choose one of the available formats: ")
+    return chosenFormat
 
 def userScan(results):
     if(len(results) != 0):
