@@ -4,7 +4,6 @@
 # 2021-10-08ymd
 import requests
 import urllib
-import sys
 import argparse
 from urllib import parse
 from tqdm import tqdm
